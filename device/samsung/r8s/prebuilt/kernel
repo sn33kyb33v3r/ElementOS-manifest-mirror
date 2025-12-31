@@ -1,0 +1,3 @@
+# Placeholder for prebuilt kernel
+# This file will be replaced by the actual kernel Image.gz during build
+# See kernel/samsung/exynos990/ for kernel source and build instructions

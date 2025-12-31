@@ -1,0 +1,157 @@
+#
+# Copyright (C) 2024 ElementOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# ElementOS Proprietary Files for Samsung Galaxy S20 FE (r8s)
+# Minimal set of required blobs for functionality
+
+# Modem firmware
+vendor/samsung/r8s/proprietary/modem.bin:system/vendor/firmware/modem.bin
+vendor/samsung/r8s/proprietary/modem_debug.bin:system/vendor/firmware/modem_debug.bin
+vendor/samsung/r8s/proprietary/modem_factory.bin:system/vendor/firmware/modem_factory.bin
+
+# ISP firmware
+vendor/samsung/r8s/proprietary/isp_fw.bin:system/vendor/firmware/isp_fw.bin
+vendor/samsung/r8s/proprietary/isp_fw_2.bin:system/vendor/firmware/isp_fw_2.bin
+
+# Audio firmware and config
+vendor/samsung/r8s/proprietary/wm1814_codec.bin:system/vendor/firmware/wm1814_codec.bin
+vendor/samsung/r8s/proprietary/wm1814_dsp.bin:system/vendor/firmware/wm1814_dsp.bin
+vendor/samsung/r8s/proprietary/audio_policy_configuration.xml:system/vendor/etc/audio_policy_configuration.xml
+vendor/samsung/r8s/proprietary/audio_effects.xml:system/vendor/etc/audio_effects.xml
+
+# Sensors
+vendor/samsung/r8s/proprietary/sensors.ssc.so:system/vendor/lib64/sensors.ssc.so
+vendor/samsung/r8s/proprietary/sensorhub.fw:system/vendor/firmware/sensorhub.fw
+vendor/samsung/r8s/proprietary/sensorhub_patched.fw:system/vendor/firmware/sensorhub_patched.fw
+
+# Camera firmware
+vendor/samsung/r8s/proprietary/camera_fw.bin:system/vendor/firmware/camera_fw.bin
+vendor/samsung/r8s/proprietary/camera_eeprom.bin:system/vendor/firmware/camera_eeprom.bin
+
+# GPU firmware
+vendor/samsung/r8s/proprietary/mali_csffw.bin:system/vendor/firmware/mali_csffw.bin
+vendor/samsung/r8s/proprietary/mali_fw.bin:system/vendor/firmware/mali_fw.bin
+
+# WiFi/BT firmware
+vendor/samsung/r8s/proprietary/bcmdhd_sta.bin:system/vendor/etc/wifi/bcmdhd_sta.bin
+vendor/samsung/r8s/proprietary/bcmdhd_apsta.bin:system/vendor/etc/wifi/bcmdhd_apsta.bin
+vendor/samsung/r8s/proprietary/bcmdhd_p2p.bin:system/vendor/etc/wifi/bcmdhd_p2p.bin
+vendor/samsung/r8s/proprietary/bcmdhd_mfg.bin:system/vendor/etc/wifi/bcmdhd_mfg.bin
+
+# NFC firmware
+vendor/samsung/r8s/proprietary/nfc_fw.bin:system/vendor/firmware/nfc_fw.bin
+
+# Fingerprint firmware
+vendor/samsung/r8s/proprietary/fingerprint_fw.bin:system/vendor/firmware/fingerprint_fw.bin
+
+# GPS firmware
+vendor/samsung/r8s/proprietary/gps_fw.bin:system/vendor/firmware/gps_fw.bin
+
+# DSP firmware
+vendor/samsung/r8s/proprietary/dsp_fw.bin:system/vendor/firmware/dsp_fw.bin
+
+# Bootloader components (minimal)
+vendor/samsung/r8s/proprietary/sbl1.mbn:system/vendor/firmware/sbl1.mbn
+vendor/samsung/r8s/proprietary/rpm.mbn:system/vendor/firmware/rpm.mbn
+vendor/samsung/r8s/proprietary/tz.mbn:system/vendor/firmware/tz.mbn
+vendor/samsung/r8s/proprietary/hyp.mbn:system/vendor/firmware/hyp.mbn
+
+# Keymaster firmware
+vendor/samsung/r8s/proprietary/keymaster_fw.bin:system/vendor/firmware/keymaster_fw.bin
+
+# Widevine DRM
+vendor/samsung/r8s/proprietary/libwvdrmengine.so:system/vendor/lib64/libwvdrmengine.so
+vendor/samsung/r8s/proprietary/libwvhidl.so:system/vendor/lib64/libwvhidl.so
+vendor/samsung/r8s/proprietary/libwvstreamcontrol.so:system/vendor/lib64/libwvstreamcontrol.so
+
+# Graphics
+vendor/samsung/r8s/proprietary/libGLES_mali.so:system/vendor/lib64/libGLES_mali.so
+vendor/samsung/r8s/proprietary/libEGL_mali.so:system/vendor/lib64/libEGL_mali.so
+vendor/samsung/r8s/proprietary/libGAL.so:system/vendor/lib64/libGAL.so
+vendor/samsung/r8s/proprietary/libVSC.so:system/vendor/lib64/libVSC.so
+
+# Camera HAL
+vendor/samsung/r8s/proprietary/camera.device@1.0-impl.so:system/vendor/lib64/camera.device@1.0-impl.so
+vendor/samsung/r8s/proprietary/camera.device@3.2-impl.so:system/vendor/lib64/camera.device@3.2-impl.so
+vendor/samsung/r8s/proprietary/camera.device@3.3-impl.so:system/vendor/lib64/camera.device@3.3-impl.so
+vendor/samsung/r8s/proprietary/camera.device@3.4-impl.so:system/vendor/lib64/camera.device@3.4-impl.so
+
+# Display HAL
+vendor/samsung/r8s/proprietary/display.qservice@1.0.so:system/vendor/lib64/display.qservice@1.0.so
+vendor/samsung/r8s/proprietary/hwcomposer.exynos990.so:system/vendor/lib64/hwcomposer.exynos990.so
+vendor/samsung/r8s/proprietary/gralloc.exynos990.so:system/vendor/lib64/gralloc.exynos990.so
+
+# Audio HAL
+vendor/samsung/r8s/proprietary/audio.primary.exynos990.so:system/vendor/lib64/audio.primary.exynos990.so
+vendor/samsung/r8s/proprietary/audio.r_submix.default.so:system/vendor/lib64/audio.r_submix.default.so
+vendor/samsung/r8s/proprietary/audio.usb.default.so:system/vendor/lib64/audio.usb.default.so
+
+# Bluetooth HAL
+vendor/samsung/r8s/proprietary/bluetooth.default.so:system/vendor/lib64/bluetooth.default.so
+
+# Sensors HAL
+vendor/samsung/r8s/proprietary/sensors.exynos990.so:system/vendor/lib64/sensors.exynos990.so
+
+# GPS HAL
+vendor/samsung/r8s/proprietary/gps.exynos990.so:system/vendor/lib64/gps.exynos990.so
+
+# Power HAL
+vendor/samsung/r8s/proprietary/power.exynos990.so:system/vendor/lib64/power.exynos990.so
+
+# Vibrator HAL
+vendor/samsung/r8s/proprietary/vibrator.default.so:system/vendor/lib64/vibrator.default.so
+
+# Lights HAL
+vendor/samsung/r8s/proprietary/lights.exynos990.so:system/vendor/lib64/lights.exynos990.so
+
+# Thermal HAL
+vendor/samsung/r8s/proprietary/thermal.exynos990.so:system/vendor/lib64/thermal.exynos990.so
+
+# Fingerprint HAL
+vendor/samsung/r8s/proprietary/fingerprint.exynos990.so:system/vendor/lib64/fingerprint.exynos990.so
+
+# NFC HAL
+vendor/samsung/r8s/proprietary/nfc_nci.default.so:system/vendor/lib64/nfc_nci.default.so
+
+# USB HAL
+vendor/samsung/r8s/proprietary/usb.default.so:system/vendor/lib64/usb.default.so
+
+# WiFi HAL
+vendor/samsung/r8s/proprietary/wifi.default.so:system/vendor/lib64/wifi.default.so
+
+# Media codecs
+vendor/samsung/r8s/proprietary/libstagefrighthw.so:system/vendor/lib64/libstagefrighthw.so
+vendor/samsung/r8s/proprietary/libmediadrm.so:system/vendor/lib64/libmediadrm.so
+vendor/samsung/r8s/proprietary/libwvdrm_L1.so:system/vendor/lib64/libwvdrm_L1.so
+vendor/samsung/r8s/proprietary/libwvm.so:system/vendor/lib64/libwvm.so
+
+# Neural networks HAL
+vendor/samsung/r8s/proprietary/android.hardware.neuralnetworks@1.0-service.exynos990.so:system/vendor/lib64/android.hardware.neuralnetworks@1.0-service.exynos990.so
+
+# Neural networks driver
+vendor/samsung/r8s/proprietary/libnpu.so:system/vendor/lib64/libnpu.so
+vendor/samsung/r8s/proprietary/libnpu_engine.so:system/vendor/lib64/libnpu_engine.so
+vendor/samsung/r8s/proprietary/libnpu_hw_interface.so:system/vendor/lib64/libnpu_hw_interface.so
+
+# TEE (Trusted Execution Environment)
+vendor/samsung/r8s/proprietary/libteeservice.so:system/vendor/lib64/libteeservice.so
+vendor/samsung/r8s/proprietary/libtee.so:system/vendor/lib64/libtee.so
+
+# DRM
+vendor/samsung/r8s/proprietary/libdrmwvmplugin.so:system/vendor/lib64/libdrmwvmplugin.so
+vendor/samsung/r8s/proprietary/libdrmtime.so:system/vendor/lib64/libdrmtime.so
+
+# End of proprietary files list

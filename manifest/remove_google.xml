@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <!-- Remove Google Services and Applications -->
+  <remove-project name="platform/packages/apps/GoogleCamera" />
+  <remove-project name="platform/packages/apps/GoogleContacts" />
+  <remove-project name="platform/packages/apps/GoogleDialer" />
+  <remove-project name="platform/packages/apps/GoogleMessages" />
+  <remove-project name="platform/packages/apps/GooglePhotos" />
+  <remove-project name="platform/packages/apps/Velvet" />
+  <remove-project name="platform/packages/apps/GmsCore" />
+  <remove-project name="platform/packages/apps/GoogleFeedback" />
+  <remove-project name="platform/packages/apps/GoogleOneTimeInitializer" />
+  <remove-project name="platform/packages/apps/GooglePartnerSetup" />
+  <remove-project name="platform/packages/apps/GoogleQuickSearchBox" />
+  <remove-project name="platform/packages/apps/GoogleServicesFramework" />
+  <remove-project name="platform/packages/apps/HotwordEnrollment" />
+  <remove-project name="platform/packages/apps/MarkupGoogle" />
+  <remove-project name="platform/packages/apps/PlayAutoInstallConfig" />
+  <remove-project name="platform/packages/apps/PrebuiltGmail" />
+  <remove-project name="platform/packages/apps/PrebuiltGoogleTelemetry" />
+  <remove-project name="platform/packages/apps/PrebuiltKeep" />
+  <remove-project name="platform/packages/apps/PrebuiltNewsWeather" />
+  <remove-project name="platform/packages/apps/PrebuiltPixelBridge" />
+  <remove-project name="platform/packages/apps/PrebuiltGmsCore" />
+  <remove-project name="platform/packages/apps/SetupWizardPrebuilt" />
+  <remove-project name="platform/packages/apps/SpeechServicesByGoogle" />
+  <remove-project name="platform/packages/apps/TagGoogle" />
+  <remove-project name="platform/packages/apps/Turbo" />
+  <remove-project name="platform/packages/apps/Wellbeing" />
+  <remove-project name="platform/packages/apps/YouTube" />
+
+  <!-- Remove Google Play Services -->
+  <remove-project name="platform/prebuilts/gradle-plugin" />
+  <remove-project name="platform/prebuilts/maven_repo/android" />
+
+  <!-- Remove Google-specific hardware -->
+  <remove-project name="platform/hardware/google/camera-common" />
+  <remove-project name="platform/hardware/google/camera-common-legacy" />
+  <remove-project name="platform/hardware/google/easel" />
+  <remove-project name="platform/hardware/google/pixel" />
+  <remove-project name="platform/hardware/google/pixel-sepolicy" />
+
+  <!-- Remove Google-specific frameworks -->
+  <remove-project name="platform/frameworks/opt/net/ethernet" />
+  <remove-project name="platform/frameworks/opt/photography" />
+
+  <!-- Remove Google connectivity -->
+  <remove-project name="platform/external/google-fruit" />
+  <remove-project name="platform/external/google-styleguide" />
+  <remove-project name="platform/external/googletest" />
+
+  <!-- ElementOS Privacy Additions -->
+  <project path="packages/apps/ElementF-Droid" name="ElementF-Droid" remote="elementos" />
+  <project path="packages/apps/ElementInitialSetup" name="ElementInitialSetup" remote="elementos" />
+  <project path="packages/apps/ElementUpdater" name="ElementUpdater" remote="elementos" />
+  <project path="packages/apps/ElementPrivacyDashboard" name="ElementPrivacyDashboard" remote="elementos" />
+
+  <!-- Privacy-focused defaults -->
+  <project path="packages/apps/ElementSettingsProvider" name="ElementSettingsProvider" remote="elementos" />
+  <project path="packages/providers/ElementLocationProvider" name="ElementLocationProvider" remote="elementos" />
+
+</manifest>

@@ -1,0 +1,1353 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta property="og:title" content="Samsung Open Source">
+<meta property="og:site_name" content="Samsung Open Source">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://opensource.samsung.com/uploadSearch">
+<meta property="og:image" content="https://opensource.samsung.com/images/photo/commonOgMeta.png">
+<title>Samsung Open Source</title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+<link rel="stylesheet" href="/css/lib/bootstrap.min.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/lib/jquery-ui.min.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/lib/mCustomScrollbar.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/lib/slick.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/lib/aos.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/common.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/layout.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/mediaquery.css?v=202512301923"/>
+<link rel="stylesheet" href="/css/mod_25.css?v=202512301923">
+<script src="/js/lib/jquery-3.6.1.min.js?v=202512301923"></script>
+<script src="/js/jquery-migrate-3.1.0.min.js?v=202512301923"></script>
+<script src="/js/jquery-ui.min.js?v=202512301923"></script>
+<script src="/js/blankshield.min.js?v=202512301923"></script>
+<script src="/js/jquery.popupwindow.js?v=202512301923"></script>
+<script src="/js/lib/bootstrap.min.js?v=202512301923"></script>
+<script src="/js/lib/slick.min.js?v=202512301923"></script>
+<script src="/js/lib/scrollbar.concat.min.js?v=202512301923"></script>
+<script src="/js/lib/aos.js?v=202512301923"></script>
+<script src="/js/lib/gsap.min.js?v=202512301923"></script>
+<script src="/js/common.js?v=202512301923"></script>
+<script src="/js/captcha.js?v=202512301923"></script>
+<script src="https://js.hcaptcha.com/1/api.js?render=explicit"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WB1XBGW8QM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-WB1XBGW8QM',{ 'anonymize_ip': true });
+</script>
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$("#searchValue").keydown(function(e){
+		if (e.keyCode == 13) {
+			search();
+		}
+	});
+
+	$("#searchButton").click(function(){
+		search();
+	});
+
+});
+
+function search(){
+	var searchValue = $.trim($("input[name='searchValue']").val());
+	$('input[name="searchValue"]').val(searchValue);
+	if (searchValue.length > 0) {
+		$('input[name="page"]').val('1');
+		$("form").submit();
+	}else{
+		alert("Find documentation, source codes, and resources.");
+		return false;
+	}
+}
+
+function onClickInquiry(uploadId){
+	$("#searchform").attr("method", "post");
+	$("#searchform").attr("action", "/uploadInquiry?uploadId="+uploadId).submit();
+}
+
+function showSrcDownPop(id){
+	$.ajax({
+		url: "/downSrcMPop",
+		type: "POST",
+        data:{
+			uploadId : id
+		},
+		beforeSend : function(xhr)
+		{
+		    xhr.setRequestHeader("X-CSRF-TOKEN", "003f72f7-8f5f-4a2d-b74a-e52ab006ab48");
+		},
+        success: function(result){
+        	$("#downModal").empty();
+        	$("#downModal").html(result);
+        	$("#downModal").show();
+        }
+    });
+}
+
+function showAnnDownPop(uploadId, attachId){
+	$.ajax({
+		url: "/downAnnMPop",
+		type: "POST",
+        data:{
+			uploadId : uploadId,
+			attachId : attachId
+		},
+		beforeSend : function(xhr)
+		{
+		    xhr.setRequestHeader("X-CSRF-TOKEN", "003f72f7-8f5f-4a2d-b74a-e52ab006ab48");
+		},
+        success: function(result){
+        	$("#downModal").empty();
+        	$("#downModal").html(result);
+        	$("#downModal").show();
+        }
+    });
+}
+
+function downLicNotice(licenseNoticeId){
+	if(licenseNoticeId != null && $.isNumeric(licenseNoticeId)){
+		location.href="/downLicNotice?parentId="+licenseNoticeId;
+	}
+}
+</script>
+
+<script type="text/javascript">
+blankshield($('a[target=_blank]'));
+blankshield.patch();
+$(document).on("click", ".prvtDflt", function(e){
+	e.preventDefault();
+});
+$(document).on("keydown", ".prvtDflt", function(e){
+	if(e.keyCode == 13){
+		e.preventDefault();
+	}
+});
+</script>
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+function navMenu(item, classification1, classification2, classification3) {
+    var menuUrl = "/uploadList?menuItem=" + item;
+    if (classification1 != null && classification1 != "") {
+    	menuUrl += "&classification1=" + classification1;
+    }
+    if (classification2 != null && classification2 != "") {
+    	menuUrl += "&classification2=" + classification2;
+    }
+    if (classification3 != null && classification3 != "") {
+    	menuUrl += "&classification3=" + classification3;
+    }
+    location.href = menuUrl;
+}
+</script>
+
+<header id="header">
+	<div class="con-wid">
+		<h1 class="logo-ssos">
+			<a href="/main"><img src="/images/layout/logo-samsung.png" alt="SAMSUNG"></a>
+		</h1>
+		<button type="button" id="m-menu">
+			<span></span>
+			<span></span>
+			<span></span>
+			<span class="blind">menu</span>
+		</button>
+		<ul id="gnb">
+			<li><a href="/about">ABOUT US</a></li>
+			<li><a href="/projects">PROJECTS</a></li>
+			<li><a href="/community">COMMUNITY</a></li>
+			<li><a href="/blog" target="_blank">BLOG</a></li>
+			<li class="sub-depth">
+				<a href="javascript:void(0);" class="have-depth">RELEASE CENTER<i class="ico-awDown Rc"></i></a>
+				<div id="releaseCenter">
+					<ul class="con-wid">
+						
+							<li>
+								<a href="javascript:navMenu('tv_n_video');" class="pointMenu have-depth">TV &amp; Video<i class="ico-awDown"></i></a>
+								
+								<ul class="gnb-nav">
+									
+									<li>
+										<a href="javascript:navMenu('tv_n_video','tv');" class="have-depth">TV<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('tv_n_video','tv','dtv');" class="have-depth">DTV<i class="ico-awDown"></i></a>
+												
+												<ul class="depth">
+													
+														<li><a href="javascript:navMenu('tv_n_video','tv','dtv','etc');">ETC</a></li>
+													
+														<li><a href="javascript:navMenu('tv_n_video','tv','dtv','led');">LED</a></li>
+													
+														<li><a href="javascript:navMenu('tv_n_video','tv','dtv','lcd');">LCD</a></li>
+													
+												</ul>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('tv_n_video','av');" >AV</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('tv_n_video','set-top_box');" >Set-top Box</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('tv_n_video','others');" class="have-depth">Others<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('tv_n_video','others','lfd');" >LFD</a>
+												
+											</li>
+											
+											<li>
+												<a href="javascript:navMenu('tv_n_video','others','projector');" >Projector</a>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+								</ul>
+								
+								<span class="ico-gnb"></span>
+							</li>
+						
+							<li>
+								<a href="javascript:navMenu('mobile');" class="pointMenu have-depth">Mobile<i class="ico-awDown"></i></a>
+								
+								<ul class="gnb-nav">
+									
+									<li>
+										<a href="javascript:navMenu('mobile','mobile_phone');" >Mobile Phone</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('mobile','wearable_/_iot');" >Wearable / IoT</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('mobile','mobile_application');" class="have-depth">Mobile Application<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('mobile','mobile_application','samsung');" >Samsung</a>
+												
+											</li>
+											
+											<li>
+												<a href="javascript:navMenu('mobile','mobile_application','3rd_party');" >3rd party</a>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('mobile','watch_application');" >Watch Application</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('mobile','others');" >Others</a>
+										
+									</li>
+									
+								</ul>
+								
+								<span class="ico-gnb"></span>
+							</li>
+						
+							<li>
+								<a href="javascript:navMenu('home_appliances');" class="pointMenu have-depth">Home Appliances<i class="ico-awDown"></i></a>
+								
+								<ul class="gnb-nav">
+									
+									<li>
+										<a href="javascript:navMenu('home_appliances','others');" >Others</a>
+										
+									</li>
+									
+								</ul>
+								
+								<span class="ico-gnb"></span>
+							</li>
+						
+							<li>
+								<a href="javascript:navMenu('pc');" class="pointMenu have-depth">PC<i class="ico-awDown"></i></a>
+								
+								<ul class="gnb-nav">
+									
+									<li>
+										<a href="javascript:navMenu('pc','pc');" >PC</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('pc','pc_sw');" >PC SW</a>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('pc','monitor');" class="have-depth">Monitor<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('pc','monitor','monitor');" class="have-depth">Monitor<i class="ico-awDown"></i></a>
+												
+												<ul class="depth">
+													
+														<li><a href="javascript:navMenu('pc','monitor','monitor','etc');">ETC</a></li>
+													
+												</ul>
+												
+											</li>
+											
+											<li>
+												<a href="javascript:navMenu('pc','monitor','mfm');" >MFM</a>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+								</ul>
+								
+								<span class="ico-gnb"></span>
+							</li>
+						
+							<li>
+								<a href="javascript:navMenu('more');" class="pointMenu have-depth">More<i class="ico-awDown"></i></a>
+								
+								<ul class="gnb-nav">
+									
+									<li>
+										<a href="javascript:navMenu('more','digital_cameras');" class="have-depth">Digital Cameras<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('more','digital_cameras','hybrid_dsc');" >Hybrid DSC</a>
+												
+											</li>
+											
+											<li>
+												<a href="javascript:navMenu('more','digital_cameras','lens__n__accessories');" >Lens &amp; Accessories</a>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('more','flash_software');" class="have-depth">Flash Software<i class="ico-awDown"></i></a>
+										
+										<ul class="depth">
+											
+											<li>
+												<a href="javascript:navMenu('more','flash_software','embedded');" >Embedded</a>
+												
+											</li>
+											
+										</ul>
+										
+									</li>
+									
+									<li>
+										<a href="javascript:navMenu('more','application_processor');" >Application Processor</a>
+										
+									</li>
+									
+								</ul>
+								
+								<span class="ico-gnb"></span>
+							</li>
+						
+					</ul><!--//con-wid-->
+				</div><!--//releaseCenter-->
+			</li>
+			<li><a href="/requestInquiry">INQUIRY</a></li>
+		</ul>
+	</div><!--//con-wid-->
+</header><!--//header-->
+
+<div id="main-contents" class="con-wid">
+<form id="searchform" name="searchform" method="post" action="/uploadSearch" >
+	<input type="hidden" name="_csrf" value="003f72f7-8f5f-4a2d-b74a-e52ab006ab48" />
+	<input type="hidden" id="page" name="page" value="1" />
+	
+	<div class="search-result">
+		<h1 class="tit con-wrap">This is the result of your ‘SM-G780F’.<br>13 of results found.</h1>
+		<div class="tbl-top">
+			<div id="m-fixSearch" class="search-box">
+				<input type="text" placeholder="Enter your search parameters" id="searchValue" name="searchValue" value="SM-G780F">
+				<button type="button" class="btn-search" id="searchButton"><span class="blind">search</span></button>
+			</div><!--//search-box-->
+		</div><!--//tbl-top-->
+	</div><!--//search-result-->
+	
+	<div class="con-wrap">
+		<p class="txt-result con-wrap">Result : 13</p>
+		
+		<div class="tbl-changeArea">
+			<table class="tbl-downList">
+				<tr class="tr-basic">
+					<th class="pc-column">Classification</th>
+					<th>Model</th>
+					<th>Version</th>
+					<th>Description</th>
+					<th class="pc-column">Source</th>
+					<th class="pc-column">Announcement</th>
+					<th class="pc-column">Inquiry</th>
+				</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSMFYC1">
+							
+								
+									G780FXXSMFYC1
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('13190');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('13190','39241');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('13190');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('13190');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('13190','39241');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('13190');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSJFXI1">
+							
+								
+									G780FXXSJFXI1
+								
+							
+						</td>
+						<td title="SM-G780F_EUR_13_Opensource.zip">
+							
+								SM-G780F_EUR_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12721');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12721','37696');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12721');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12721');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12721','37696');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12721');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSHFXE5">
+							
+								
+									G780FXXSHFXE5
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12472');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12472','36884');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12472');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12472');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12472','36884');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12472');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSGFXC6">
+							
+								
+									G780FXXSGFXC6
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12446');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12446','36803');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12446');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12446');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12446','36803');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12446');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSFFXC1">
+							
+								
+									G780FXXSFFXC1
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12384');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12384','36598');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12384');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12384');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12384','36598');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12384');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSFFXA6">
+							
+								
+									G780FXXSFFXA6
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12329');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12329','36423');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12329');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12329');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12329','36423');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12329');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSEFWK8">
+							
+								
+									G780FXXSEFWK8
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12138');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12138','35824');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12138');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12138');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12138','35824');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12138');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSDFWI3">
+							
+								
+									G780FXXSDFWI3
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('12024');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('12024','35470');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('12024');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('12024');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('12024','35470');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('12024');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXSDFWH8">
+							
+								
+									G780FXXSDFWH8
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('11961');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('11961','35296');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('11961');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('11961');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('11961','35296');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('11961');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+					<tr>
+						<td class="pc-column" title="Mobile Phone">
+							Mobile Phone
+						</td>
+						<td title="SM-G780F">
+							
+								SM-G780F
+							
+						</td>
+						<td title="G780FXXUDFWH5">
+							
+								
+									G780FXXUDFWH5
+								
+							
+						</td>
+						<td title="SM-G780F_CIS_13_Opensource.zip">
+							
+								SM-G780F_CIS_13_Opensource.zip
+							
+						</td>
+						<td class="pc-column">
+							
+								<a href="javascript:showSrcDownPop('11941');">
+									<i class="ico-sourceUtil ico-down"></i>
+								</a>
+							
+						</td>
+						<td class="pc-column">
+							
+								
+									<a href="javascript:showAnnDownPop('11941','35238');"><i class="ico-sourceUtil ico-docu"></i></a>
+								
+							
+							
+						</td>
+						
+						
+							
+							
+								
+							
+						
+						<td class="pc-column">
+							<a href="javascript:onClickInquiry('11941');"><i class="ico-sourceUtil ico-mail"></i></a>
+						</td>
+					</tr>
+					<tr class="m-column">
+						<td colspan="3">
+							<ul>
+								<li>
+									
+										Source<a href="javascript:showSrcDownPop('11941');"><i class="ico-sourceUtil ico-down"></i></a>
+									
+								</li>
+								<li>
+									
+										Announcement
+										
+											<a href="javascript:showAnnDownPop('11941','35238');"><i class="ico-sourceUtil ico-docu"></i></a>
+										
+										
+									
+								</li>
+								<li>
+									Inquiry<a href="javascript:onClickInquiry('11941');"><i class="ico-sourceUtil ico-mail"></i></a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+				
+			</table>
+		</div><!--//tbl-changeArea-->
+		
+			
+			
+			
+			
+		
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+function gotoPage(pageNum) {
+	if (pageNum == null || pageNum.length < 0) {
+		$("#page").val("1");
+	} else {
+		$("#page").val(pageNum);
+	}
+	
+		
+		
+			$("form").submit();
+		
+	
+}
+</script>
+
+<!-- paging -->
+
+<div class="paginate">
+	<a href="javascript:gotoPage('1')" class="direction direc-prev" disabled></a>
+	
+		
+			
+			
+				<strong>1</strong>
+			
+		
+	
+		
+			
+				<a href="javascript:gotoPage('2');">2</a>
+			
+			
+		
+	
+	<a href="javascript:gotoPage('2')" class="direction direc-next" ></a>
+</div>
+		
+		
+	</div>
+</form>
+<div id="downModal" style="display:none;" class="modal modal-open">
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<footer id="footer">
+	<div class="con-wid">
+		<h1 class="logo-ssos">
+			<img src="/images/layout/logo-footer.png" alt="SAMSUNG">
+		</h1>
+		<div class="site-link">
+			<ul>
+				<li><a href="/terms">Terms &amp; Conditions</a></li>
+				<li><a href="/privacy">Privacy Policy</a></li>
+				<li><a href="javascript:void(0);">Family Site</a></li>
+			</ul>
+			<div class="site-view">
+				<a href="javascript:void(0);" class="site-viewTit">Site view</a>
+				<ul>
+					<li><a href="https://www.samsung.com" target="_blank">Samsung.com</a></li>
+					<li><a href="https://techblog.samsung.com" target="_blank">Samsung Tech Blog</a></li>
+					<li><a href="https://research.samsung.com" target="_blank">Samsung Research</a></li>
+					<li><a href="https://www.sdc-korea.com" target="_blank">SDC Korea</a></li>
+					<li><a href="https://software.devcommunities.net" target="_blank">Samsung S/W Developer Community</a></li>
+					<li><a href="https://developer.samsung.com" target="_blank">Samsung Developers</a></li>
+				</ul>
+			</div><!--//site-view-->
+		</div><!--//site-link-->
+		<p class="copy">Copyright ⓒ 2010 - 2025 SAMSUNG All rights reserved</p>
+		<a href="#none" id="btn-top"></a>
+	</div><!--//con-wid-->
+</footer><!--//footer-->
+<script>
+/* aos */
+if ($(".aos-item:not([data-aos])")) {
+	$(".aos-item:not([data-aos])").attr("data-aos", "fade-up");
+}
+$(window).on('load', function () {
+    setTimeout(function() {AOS.refresh();}, 100);
+	AOS.init({
+		duration: 1000,
+	});
+});
+
+setTimeout(function () {
+	$(".removeDel").removeAttr("data-aos-delay");
+}, 950);
+
+$(".aosDelay").each(function (index) {
+	var delay = "." + (index / .5) + "s";
+	$(this).css("transition-delay", delay);
+});
+
+if($('.popupzone').css('display') == "block") {
+	$('.main-visualCon>h1.tit-visual').attr('data-aos-once', 'true').attr('data-aos-anchor', 'popupzone');
+	$('.main-visualCon>h2').attr('data-aos-once', 'true').attr('data-aos-anchor', 'popupzone');
+	$('.main-visualCon>.search-radius').attr('data-aos-once', 'true').attr('data-aos-anchor', 'popupzone');
+} else{
+	$('.main-visualCon>h1.tit-visual').removeAttr('data-aos-once').removeAttr('data-aos-anchor');
+	$('.main-visualCon>h2').removeAttr('data-aos-once').removeAttr('data-aos-anchor');
+	$('.main-visualCon>.search-radius').removeAttr('data-aos-once').removeAttr('data-aos-anchor');
+}
+</script>
+</body>
+</html>

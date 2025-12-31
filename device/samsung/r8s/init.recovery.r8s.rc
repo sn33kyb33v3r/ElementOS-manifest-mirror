@@ -1,0 +1,204 @@
+# Copyright (C) 2024 ElementOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import /init.recovery.${ro.hardware}.rc
+
+on early-init
+    # Set up recovery environment
+    mkdir /tmp 0777 root root
+    mkdir /cache 0770 system cache
+    mkdir /data 0771 system system
+    mkdir /sdcard 0777 root root
+    mkdir /persist 0771 system system
+    mkdir /metadata 0771 system system
+    mkdir /protect_f 0771 system system
+    mkdir /protect_s 0771 system system
+    mkdir /nvdata 0771 system system
+
+    # Create device nodes
+    mknod /dev/block/platform/13d60000.ufs/by-name/boot b 179 1
+    mknod /dev/block/platform/13d60000.ufs/by-name/recovery b 179 2
+    mknod /dev/block/platform/13d60000.ufs/by-name/system b 179 3
+    mknod /dev/block/platform/13d60000.ufs/by-name/vendor b 179 4
+    mknod /dev/block/platform/13d60000.ufs/by-name/userdata b 179 5
+    mknod /dev/block/platform/13d60000.ufs/by-name/cache b 179 6
+    mknod /dev/block/platform/13d60000.ufs/by-name/metadata b 179 7
+    mknod /dev/block/platform/13d60000.ufs/by-name/persist b 179 8
+
+on init
+    # Set up recovery environment
+    export PATH /sbin:/system/bin:/system/xbin
+    export LD_LIBRARY_PATH /sbin:/system/lib64:/system/lib
+    
+    # Set up mounts
+    mount tmpfs tmpfs /tmp size=128M
+    
+    # Start recovery services
+    start recovery
+
+on property:ro.bootmode=recovery
+    # Recovery mode specific setup
+    start recovery
+
+service recovery /sbin/recovery
+    class core
+    console
+    seclabel u:r:recovery:s0
+    oneshot
+
+service adbd /sbin/adbd --root_seclabel=u:r:su:s0
+    class core
+    socket adbd stream 660 system system
+    disabled
+    seclabel u:r:adbd:s0
+
+service ueventd /sbin/ueventd
+    class core
+    seclabel u:r:ueventd:s0
+
+on property:ro.debuggable=1
+    # Enable adbd in recovery
+    start adbd
+
+on property:sys.usb.config=adb
+    # Enable USB debugging
+    write /sys/class/android_usb/android0/enable 1
+    write /sys/class/android_usb/android0/idVendor 04e8
+    write /sys/class/android_usb/android0/idProduct 6860
+    write /sys/class/android_usb/android0/functions adb
+
+on property:sys.usb.config=mtp,adb
+    # Enable MTP and ADB
+    write /sys/class/android_usb/android0/enable 1
+    write /sys/class/android_usb/android0/idVendor 04e8
+    write /sys/class/android_usb/android0/idProduct 6861
+    write /sys/class/android_usb/android0/functions mtp,adb
+
+on property:sys.usb.config=none
+    # Disable USB
+    write /sys/class/android_usb/android0/enable 0
+
+# Key events
+on key 115
+    # Volume up
+    trigger reboot-recovery
+
+on key 114
+    # Volume down
+    trigger reboot-recovery
+
+on key 116
+    # Power button
+    trigger reboot-recovery
+
+# Battery monitoring
+on property:ro.bootmode=charger
+    # Charger mode
+    start charger
+
+service charger /sbin/healthd -n
+    class charger
+    critical
+    seclabel u:r:healthd:s0
+
+# Storage mounting
+on property:ro.boot.storage=ufs
+    # UFS storage specific setup
+    mount_all /fstab.r8s
+
+on property:ro.boot.storage=sd
+    # SD card storage specific setup
+    mount_all /fstab.r8s
+
+# File system check
+service fsck /system/bin/fsck.f2fs
+    class core
+    oneshot
+    disabled
+
+# Wipe data service
+service wipe_data /sbin/recovery --wipe_data
+    class core
+    oneshot
+    disabled
+
+# Wipe cache service
+service wipe_cache /sbin/recovery --wipe_cache
+    class core
+    oneshot
+    disabled
+
+# Apply update service
+service apply_update /sbin/recovery --update_package
+    class core
+    oneshot
+    disabled
+
+# Backup service
+service backup /sbin/recovery --backup
+    class core
+    oneshot
+    disabled
+
+# Restore service
+service restore /sbin/recovery --restore
+    class core
+    oneshot
+    disabled
+
+# ElementOS specific services
+on property:ro.elementos.recovery=1
+    # ElementOS recovery features
+    start elementos_recovery
+
+service elementos_recovery /system/bin/elementos_recovery
+    class core
+    oneshot
+    disabled
+    seclabel u:r:recovery:s0
+
+# Privacy features
+on property:ro.elementos.privacy=1
+    # Enable privacy features in recovery
+    write /proc/sys/kernel/randomize_va_space 2
+    write /proc/sys/kernel/kptr_restrict 2
+    write /proc/sys/kernel/dmesg_restrict 1
+    write /proc/sys/kernel/yama/ptrace_scope 1
+
+# Security features
+on property:ro.elementos.security=1
+    # Enable security features in recovery
+    write /proc/sys/kernel/unprivileged_bpf_disabled 1
+    write /proc/sys/net/core/bpf_jit_harden 2
+    write /proc/sys/kernel/unprivileged_userns_clone 0
+
+# Debug features (disabled by default)
+on property:ro.elementos.debug=0
+    # Disable debug features
+    write /sys/kernel/debug/tracing/tracing_on 0
+    write /proc/sys/kernel/printk 0 0 0 0
+
+# Performance tuning
+on property:ro.elementos.performance=1
+    # Performance tuning for recovery
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor performance
+
+# End of file

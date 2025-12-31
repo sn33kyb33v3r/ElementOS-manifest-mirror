@@ -1,0 +1,356 @@
+#
+# Copyright (C) 2024 ElementOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# ElementOS GitLab CI/CD Pipeline
+# Builds ElementOS for Samsung Galaxy S20 FE (r8s)
+
+stages:
+  - setup
+  - build
+  - package
+  - release
+
+variables:
+  SOURCE_DATE_EPOCH: "1640995200"
+  BUILD_DATETIME: "20220101.000000"
+  BUILD_NUMBER: "$CI_PIPELINE_IID"
+  DEVICE: "r8s"
+  PRODUCT: "element_r8s"
+  BUILD_TYPE: "userdebug"
+  JOBS: "8"
+  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
+  OUT_DIR: "$CI_PROJECT_DIR/out"
+  DIST_DIR: "$CI_PROJECT_DIR/dist"
+  REPO_URL: "https://gitlab.com/elementos/manifest.git"
+  REPO_BRANCH: "master"
+  REPO_MANIFEST: "default.xml"
+
+# Docker image for builds
+.build_image: &build_image
+  image: ubuntu:22.04
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq curl git python3 python3-pip openjdk-17-jdk
+    - pip3 install --quiet git+https://github.com/akhilkedia/gitlab-ci-android.git
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    - git config --global user.name "ElementOS CI"
+    - git config --global user.email "ci@elementos.dev"
+    - git config --global color.ui false
+
+# Cache configuration
+.cache: &cache
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$DEVICE"
+    paths:
+      - .ccache/
+      - .repo/
+      - prebuilts/
+    policy: pull-push
+
+# Setup stage
+setup:
+  <<: *build_image
+  <<: *cache
+  stage: setup
+  script:
+    - echo "Setting up ElementOS build environment..."
+    - mkdir -p $CCACHE_DIR
+    - ccache --max-size=50G
+    - ccache --set-config=compression=true
+    - ccache --set-config=compression_level=6
+    - ccache --set-config=sloppiness=file_macro,include_file_mtime,time_macros
+    - ccache --set-config=hash_dir=false
+    - ccache --set-config=run_second_cpp=true
+    - ccache --zero-stats
+    - echo "Initializing repo..."
+    - repo init -u $REPO_URL -b $REPO_BRANCH -m $REPO_MANIFEST --depth=1
+    - cp manifest/remove_google.xml .repo/local_manifests/
+    - echo "Syncing repositories..."
+    - repo sync -c -j$JOBS --force-sync --no-clone-bundle --no-tags --quiet
+    - echo "Setup complete"
+  artifacts:
+    paths:
+      - .repo/manifest.xml
+      - .repo/manifests/
+    expire_in: 1 hour
+  only:
+    - master
+    - develop
+    - /^release\/.*$/
+
+# Kernel build stage
+build_kernel:
+  <<: *build_image
+  <<: *cache
+  stage: build
+  script:
+    - echo "Building ElementOS hardened kernel..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - cd kernel/samsung/exynos990
+    - make clean
+    - make element_r8s_defconfig
+    - make -j$JOBS CFLAGS="-fstack-protector-strong -fPIC" KCFLAGS="-fstack-protector-strong -fPIC"
+    - cp arch/arm64/boot/Image.gz $CI_PROJECT_DIR/device/samsung/r8s/prebuilt/kernel
+    - echo "Kernel build complete"
+  artifacts:
+    paths:
+      - kernel/samsung/exynos990/arch/arm64/boot/Image.gz
+      - device/samsung/r8s/prebuilt/kernel
+    expire_in: 1 hour
+  only:
+    - master
+    - /^kernel\/.*$/
+
+# Android build stage
+build_android:
+  <<: *build_image
+  <<: *cache
+  stage: build
+  script:
+    - echo "Building ElementOS Android..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - export SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH
+    - export BUILD_DATETIME=$BUILD_DATETIME
+    - export BUILD_NUMBER=$BUILD_NUMBER
+    - export DETERMINISTIC_BUILD=true
+    - export KBUILD_BUILD_USER="elementos"
+    - export KBUILD_BUILD_HOST="build"
+    - export KBUILD_BUILD_TIMESTAMP="$(date -d @$SOURCE_DATE_EPOCH)"
+    - make -j$JOBS bootimage vendorbootimage
+    - echo "Android build complete"
+  artifacts:
+    paths:
+      - out/target/product/$DEVICE/boot.img
+      - out/target/product/$DEVICE/vendor_boot.img
+    expire_in: 1 hour
+  dependencies:
+    - setup
+    - build_kernel
+  only:
+    - master
+    - develop
+    - /^release\/.*$/
+  needs: ["setup", "build_kernel"]
+
+# Full system build
+build_system:
+  <<: *build_image
+  <<: *cache
+  stage: build
+  script:
+    - echo "Building full ElementOS system..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - export SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH
+    - export BUILD_DATETIME=$BUILD_DATETIME
+    - export BUILD_NUMBER=$BUILD_NUMBER
+    - export DETERMINISTIC_BUILD=true
+    - make -j$JOBS systemimage vendorimage userdataimage
+    - echo "System build complete"
+  artifacts:
+    paths:
+      - out/target/product/$DEVICE/system.img
+      - out/target/product/$DEVICE/vendor.img
+      - out/target/product/$DEVICE/userdata.img
+    expire_in: 2 hours
+  dependencies:
+    - setup
+    - build_kernel
+  only:
+    - master
+    - /^release\/.*$/
+  needs: ["setup", "build_kernel"]
+
+# Package stage
+package:
+  <<: *build_image
+  stage: package
+  script:
+    - echo "Packaging ElementOS artifacts..."
+    - mkdir -p $DIST_DIR
+    - cp out/target/product/$DEVICE/boot.img $DIST_DIR/
+    - cp out/target/product/$DEVICE/vendor_boot.img $DIST_DIR/
+    - if [ -f out/target/product/$DEVICE/system.img ]; then cp out/target/product/$DEVICE/system.img $DIST_DIR/; fi
+    - if [ -f out/target/product/$DEVICE/vendor.img ]; then cp out/target/product/$DEVICE/vendor.img $DIST_DIR/; fi
+    - if [ -f out/target/product/$DEVICE/userdata.img ]; then cp out/target/product/$DEVICE/userdata.img $DIST_DIR/; fi
+    - cd $DIST_DIR
+    - sha256sum * > SHA256SUMS.txt
+    - echo "Build artifacts packaged"
+    - cat SHA256SUMS.txt
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  dependencies:
+    - build_android
+    - build_system
+  only:
+    - master
+    - develop
+    - /^release\/.*$/
+  needs: ["build_android", "build_system"]
+
+# Release stage
+release:
+  <<: *build_image
+  stage: release
+  script:
+    - echo "Creating ElementOS release..."
+    - cd $DIST_DIR
+    - tar -czf elementos-$DEVICE-$BUILD_NUMBER.tar.gz *
+    - echo "Release created: elementos-$DEVICE-$BUILD_NUMBER.tar.gz"
+    - ls -la
+  artifacts:
+    paths:
+      - dist/*.tar.gz
+    expire_in: 1 month
+  dependencies:
+    - package
+  only:
+    - master
+    - /^release\/.*$/
+  needs: ["package"]
+
+# Clean stage
+clean:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Cleaning build artifacts..."
+    - rm -rf out/
+    - rm -rf dist/
+    - rm -rf .ccache/
+    - echo "Clean complete"
+  when: manual
+  allow_failure: true
+
+# Test stage
+test:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Running ElementOS tests..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - make test
+    - echo "Tests complete"
+  allow_failure: true
+  only:
+    - master
+    - develop
+
+# Lint stage
+lint:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Running ElementOS lint checks..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - make lint
+    - echo "Lint complete"
+  allow_failure: true
+  only:
+    - master
+    - develop
+
+# Security scan
+security:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Running security scan..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - make security
+    - echo "Security scan complete"
+  allow_failure: true
+  only:
+    - master
+    - develop
+
+# Performance analysis
+performance:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Running performance analysis..."
+    - source build/envsetup.sh
+    - lunch $PRODUCT-$BUILD_TYPE
+    - make performance
+    - echo "Performance analysis complete"
+  allow_failure: true
+  only:
+    - master
+    - develop
+
+# Cache statistics
+cache-stats:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Cache statistics:"
+    - ccache --show-stats
+  allow_failure: true
+  only:
+    - master
+    - develop
+
+# Documentation build
+docs:
+  <<: *build_image
+  stage: build
+  script:
+    - echo "Building documentation..."
+    - cd docs
+    - make html
+    - echo "Documentation build complete"
+  artifacts:
+    paths:
+      - docs/_build/html/
+    expire_in: 1 week
+  only:
+    - master
+    - /^docs\/.*$/
+
+# Trigger downstream pipelines
+trigger:
+  stage: release
+  trigger:
+    project: elementos/ota
+    branch: master
+  only:
+    - master
+  needs: ["release"]
+
+# Notification
+notify:
+  stage: release
+  script:
+    - echo "Build completed successfully!"
+    - echo "Device: $DEVICE"
+    - echo "Build number: $BUILD_NUMBER"
+    - echo "Build type: $BUILD_TYPE"
+    - echo "Artifacts available in dist/"
+  only:
+    - master
+    - develop
+    - /^release\/.*$/
+  needs: ["release"]
+
+# End of .gitlab-ci.yml

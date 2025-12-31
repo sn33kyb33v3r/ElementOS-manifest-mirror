@@ -1,0 +1,213 @@
+#
+# Copyright (C) 2024 ElementOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Board configuration for Samsung Galaxy S20 FE Exynos (SM-G780F)
+
+# Device identifiers
+TARGET_BOARD_PLATFORM := exynos990
+TARGET_BOOTLOADER_BOARD_NAME := r8s
+TARGET_NO_BOOTLOADER := true
+TARGET_NO_RADIOIMAGE := true
+
+# Architecture
+TARGET_ARCH := arm64
+TARGET_ARCH_VARIANT := armv8-a
+TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_ABI2 := 
+TARGET_CPU_VARIANT := cortex-a76
+
+# Secondary architecture (32-bit)
+TARGET_2ND_ARCH := arm
+TARGET_2ND_ARCH_VARIANT := armv8-a
+TARGET_2ND_CPU_ABI := armeabi-v7a
+TARGET_2ND_CPU_ABI2 := armeabi
+TARGET_2ND_CPU_VARIANT := cortex-a76
+
+# Kernel configuration
+BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=r8s androidboot.selinux=permissive
+BOARD_KERNEL_BASE := 0x10000000
+BOARD_KERNEL_PAGESIZE := 2048
+BOARD_KERNEL_OFFSET := 0x00008000
+BOARD_RAMDISK_OFFSET := 0x01000000
+BOARD_SECOND_OFFSET := 0x00f00000
+BOARD_KERNEL_TAGS_OFFSET := 0x00000100
+BOARD_FLASH_BLOCK_SIZE := 131072
+BOARD_MKBOOTIMG_ARGS := --kernel_offset $(BOARD_KERNEL_OFFSET) --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
+
+# Kernel source
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_HEADER_ARCH := arm64
+TARGET_KERNEL_SOURCE := kernel/samsung/exynos990
+TARGET_KERNEL_CONFIG := element_r8s_defconfig
+TARGET_KERNEL_CLANG_COMPILE := true
+TARGET_KERNEL_CLANG_VERSION := r487747
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-android-
+
+# Prebuilt kernel fallback
+TARGET_PREBUILT_KERNEL := device/samsung/r8s/prebuilt/kernel
+BOARD_KERNEL_IMAGE_NAME := Image.gz
+
+# Partitions
+BOARD_BOOTIMAGE_PARTITION_SIZE := 61865984
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 71102464
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 4831838208
+BOARD_VENDORIMAGE_PARTITION_SIZE := 1610612736
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 57436708864
+
+# Filesystem
+BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+BOARD_FLASH_BLOCK_SIZE := 131072
+
+# Recovery
+BOARD_INCLUDE_RECOVERY_DTBO := true
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_USES_RECOVERY_AS_BOOT := false
+TARGET_NO_RECOVERY := false
+TARGET_RECOVERY_FSTAB := device/samsung/r8s/recovery.fstab
+TARGET_RECOVERY_PIXEL_FORMAT := "ABGR_8888"
+
+# Display
+TARGET_SCREEN_DENSITY := 420
+TARGET_USES_HWC2 := true
+TARGET_USES_GRALLOC1 := true
+TARGET_USES_ION := true
+
+# Audio
+BOARD_USES_ALSA_AUDIO := true
+BOARD_USES_GENERIC_AUDIO := false
+AUDIO_FEATURE_ENABLED_COMPRESS_VOIP := false
+AUDIO_FEATURE_ENABLED_EXTN_FORMATS := true
+AUDIO_FEATURE_ENABLED_HDMI_SPK := true
+AUDIO_FEATURE_ENABLED_PROXY_DEVICE := true
+
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_CUSTOM_BT_CONFIG := device/samsung/r8s/bluetooth/libbt_vndcfg.txt
+
+# Camera
+USE_CAMERA_STUB := false
+BOARD_USE_SAMSUNG_CAMERAFORMAT_NV21 := true
+
+# GPS
+TARGET_NO_RPC := true
+
+# Graphics
+USE_OPENGL_RENDERER := true
+BOARD_USES_DRM_HWCOMPOSER := true
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+
+# HIDL
+DEVICE_MANIFEST_FILE := device/samsung/r8s/manifest.xml
+DEVICE_MATRIX_FILE := device/samsung/r8s/compatibility_matrix.xml
+
+# Security
+BOARD_USES_KEYMASTER := true
+BOARD_USES_TRUST_KEYMASTER := true
+
+# SELinux
+BOARD_SEPOLICY_DIRS := device/samsung/r8s/sepolicy
+BOARD_SEPOLICY_VERS := 30.0
+
+# Vendor
+BOARD_VENDOR := samsung
+BOARD_USES_QCOM_HARDWARE := false
+
+# Properties
+TARGET_SYSTEM_PROP += device/samsung/r8s/system.prop
+TARGET_VENDOR_PROP += device/samsung/r8s/vendor.prop
+
+# Verified Boot
+BOARD_AVB_ENABLE := true
+BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 2
+BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
+BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA2048
+BOARD_AVB_RECOVERY_ROLLBACK_INDEX := 1
+BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 2
+
+# Metadata
+BOARD_USES_METADATA_PARTITION := true
+BOARD_ROOT_EXTRA_FOLDERS := metadata
+
+# Dynamic partitions
+BOARD_SUPER_PARTITION_SIZE := 8589934592
+BOARD_SUPER_PARTITION_GROUPS := samsung_dynamic_partitions
+BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE := 8585740288
+BOARD_SAMSUNG_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product
+
+# Build rules
+BUILD_BROKEN_DUP_RULES := true
+BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
+BUILD_BROKEN_ENFORCE_SYSPROP_OWNER := true
+
+# Dex preoptimization
+WITH_DEXPREOPT := true
+WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := true
+
+# Protobuf
+PROTOBUF_SUPPORTED := true
+
+# Renderscript
+BOARD_OVERRIDE_RS_CPU_VARIANT_32 := cortex-a76
+BOARD_OVERRIDE_RS_CPU_VARIANT_64 := cortex-a76
+
+# WiFi
+BOARD_WLAN_DEVICE := bcmdhd
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+BOARD_HOSTAPD_DRIVER := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+WIFI_DRIVER_FW_PATH_PARAM := "/sys/module/dhd/parameters/firmware_path"
+WIFI_DRIVER_FW_PATH_STA := "/vendor/etc/wifi/bcmdhd_sta.bin"
+WIFI_DRIVER_FW_PATH_AP := "/vendor/etc/wifi/bcmdhd_apsta.bin"
+WIFI_DRIVER_FW_PATH_P2P := "/vendor/etc/wifi/bcmdhd_p2p.bin"
+WPA_SUPPLICANT_VERSION := VER_0_8_X
+
+# USB
+TARGET_USES_EXYNOS_USB3_PHY := true
+
+# Charger
+BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_CHARGER_SHOW_PMIC_INFO := true
+
+# Health HAL
+SOONG_CONFIG_NAMESPACES += EXYNOS_HEALTH_HAL
+SOONG_CONFIG EXYNOS_HEALTH_HAL += USE_CUSTOM_BATTERY_STATS
+SOONG_CONFIG EXYNOS_HEALTH_HAL USE_CUSTOM_BATTERY_STATS := true
+
+# Fingerprint
+SOONG_CONFIG_NAMESPACES += EXYNOS_FP_HAL
+SOONG_CONFIG EXYNOS_FP_HAL += USES_FINGERPRINT
+SOONG_CONFIG EXYNOS_FP_HAL USES_FINGERPRINT := true
+
+# Vibrator
+SOONG_CONFIG_NAMESPACES += EXYNOS_VIBRATOR_HAL
+SOONG_CONFIG EXYNOS_VIBRATOR_HAL += USES_VIBRATOR
+SOONG_CONFIG EXYNOS_VIBRATOR_HAL USES_VIBRATOR := true
+
+# Disable Knox
+DISABLE_KNOX := true
+
+# Privacy features
+BOARD_USES_PRIVACY_GUARD := true
+BOARD_DISABLE_RKP := true
+
+# Reproducible builds
+BUILD_DATETIME_FROM_FILE := true
+BUILD_ID_FROM_FILE := true
