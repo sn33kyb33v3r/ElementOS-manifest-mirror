@@ -19,6 +19,28 @@
 
 FROM ubuntu:22.04
 
+# Kernel build arguments
+ARG TARGET_KERNEL_DEFCONFIG=element_r8s_defconfig
+ARG TARGET_KERNEL_SOURCE=kernel/samsung/exynos990
+ARG TARGET_KERNEL_ARCH=arm64
+ARG TARGET_KERNEL_CLANG_COMPILE=true
+
+# Install Samsung cross-compiler toolchain (if not already present)
+RUN apt-get update && apt-get install -y \
+    gcc-aarch64-linux-gnu \
+    libssl-dev \
+    bc \
+    flex \
+    bison \
+    device-tree-compiler
+
+# Set kernel build environment
+ENV KBUILD_BUILD_USER=elementos
+ENV KBUILD_BUILD_HOST=build
+ENV ARCH=arm64
+ENV CROSS_COMPILE=aarch64-linux-gnu-
+ENV PATH="/elementos/prebuilts/clang/host/linux-x86/clang-r487747/bin:${PATH}"
+
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
