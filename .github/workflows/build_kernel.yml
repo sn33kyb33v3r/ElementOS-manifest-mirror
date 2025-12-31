@@ -30,7 +30,11 @@ jobs:
           chmod a+x ~/bin/repo
           export PATH=~/bin:$PATH
           repo init -u https://github.com/sn33kyb33v3r/ElementOS-manifest-mirror.git -b master
-          repo sync -c -j$(nproc)
+          repo sync -c -j$(nproc) --force-sync kernel/samsung/exynos990
+
+      - name: Checkout kernel submodule
+        run: |
+          git submodule update --init --recursive kernel/samsung/exynos990
 
       - name: Build kernel
         run: |
