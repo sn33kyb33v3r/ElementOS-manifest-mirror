@@ -32,9 +32,9 @@ jobs:
           repo init -u https://github.com/sn33kyb33v3r/ElementOS-manifest-mirror.git -b master
           repo sync -c -j$(nproc) --force-sync kernel/samsung/exynos990
 
-      - name: Checkout kernel submodule
+      - name: Checkout submodules
         run: |
-          git submodule update --init --recursive kernel/samsung/exynos990
+          git submodule update --init --recursive
 
       - name: Build kernel
         run: |
