@@ -14,14 +14,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Build kernel
         run: |
           sudo apt-get update && sudo apt-get install -y bc build-essential
           cd kernel/samsung/exynos990
-          make O=/tmp/build ARCH=arm64 element_r8s_defconfig
-          make O=/tmp/build ARCH=arm64 -j$(nproc) Image.gz-dtb
-          cp /tmp/build/arch/arm64/boot/Image.gz-dtb arch/arm64/boot/Image.gz-dtb
+          ARCH=arm64 make element_r8s_defconfig
+          ARCH=arm64 make -j$(nproc) Image.gz-dtb
 
       - name: Upload kernel artifact
         uses: actions/upload-artifact@v4
