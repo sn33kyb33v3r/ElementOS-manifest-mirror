@@ -1,30 +1,145 @@
-name: Build Kernel
+name: Build ElementOS Kernel for r8s
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'kernel/samsung/exynos990/**'
+      - '.github/workflows/build_kernel.yml'
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'kernel/samsung/exynos990/**'
+      - '.github/workflows/build_kernel.yml'
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-kernel:
+    name: Build Exynos 990 Kernel
     runs-on: ubuntu-22.04
+    
+    env:
+      KERNEL_DIR: kernel/samsung/exynos990
+      DEFCONFIG: element_r8s_defconfig
+      TOOLCHAIN_URL: https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
+      CLANG_URL: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-12.1.0_r27/clang-r437112b.tar.gz
+      ARCH: arm64
+    
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with full history
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
-
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Force sync kernel submodule to latest branch commit
+        run: |
+          echo "Purging cached submodule..."
+          rm -rf ${{ env.KERNEL_DIR }}
+          
+          echo "Re-initializing submodule from scratch..."
+          git submodule sync --recursive
+          git submodule update --init --recursive --force --remote
+          
+          echo "Verifying submodule state..."
+          cd ${{ env.KERNEL_DIR }}
+          git checkout element-6.1-aosp-squashed
+          echo "Submodule at commit: $(git rev-parse HEAD)"
+          
+          echo "Verifying defconfig exists..."
+          ls -la arch/arm64/configs/${{ env.DEFCONFIG }}
+          if [ ! -f arch/arm64/configs/${{ env.DEFCONFIG }} ]; then
+            echo "ERROR: defconfig not found!"
+            exit 1
+          fi
+      
+      - name: Set up build environment
+        run: |
+          echo "Installing dependencies..."
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential ccache flex g++-multilib gcc-multilib \
+            git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev \
+            lib32z1-dev liblz4-tool libncurses5 libncurses5-dev \
+            libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop \
+            pngcrush rsync schedtool squashfs-tools xsltproc \
+            zip zlib1g-dev device-tree-compiler python3 \
+            python3-pip python3-setuptools nodejs
+      
+      - name: Download Aarch64 toolchain
+        run: |
+          echo "Downloading toolchain..."
+          mkdir -p $HOME/toolchain
+          cd $HOME/toolchain
+          wget -q ${{ env.TOOLCHAIN_URL }} -O aarch64.tar.gz
+          tar -xzf aarch64.tar.gz --strip-components=1
+      
+      - name: Download Clang toolchain
+        run: |
+          echo "Downloading Clang..."
+          mkdir -p $HOME/clang
+          cd $HOME/clang
+          wget -q ${{ env.CLANG_URL }} -O clang.tar.gz
+          tar -xzf clang.tar.gz
+      
+      - name: Set environment variables
+        run: |
+          echo "TOOLCHAIN=$HOME/toolchain" >> $GITHUB_ENV
+          echo "CLANG_PATH=$HOME/clang" >> $GITHUB_ENV
+          echo "PATH=$HOME/clang/bin:$HOME/toolchain/bin:$PATH" >> $GITHUB_ENV
+      
+      - name: Clean kernel build
+        run: |
+          cd ${{ env.KERNEL_DIR }}
+          make clean && make mrproper
+      
+      - name: Configure kernel
+        run: |
+          cd ${{ env.KERNEL_DIR }}
+          export CROSS_COMPILE=$HOME/toolchain/bin/aarch64-linux-android-
+          make ARCH=${{ env.ARCH }} ${{ env.DEFCONFIG }}
+      
       - name: Build kernel
         run: |
-          sudo apt-get update && sudo apt-get install -y bc build-essential
-          cd kernel/samsung/exynos990
-          ARCH=arm64 make element_r8s_defconfig
-          ARCH=arm64 make -j$(nproc) Image.gz-dtb
-
-      - name: Upload kernel artifact
+          cd ${{ env.KERNEL_DIR }}
+          export CROSS_COMPILE=$HOME/toolchain/bin/aarch64-linux-android-
+          ./build.sh  # If you have a build script, or:
+          # make ARCH=${{ env.ARCH }} -j$(nproc --all)
+      
+      - name: Package kernel image
+        run: |
+          echo "Packaging artifacts..."
+          cd ${{ env.KERNEL_DIR }}
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          
+          # Copy Image.gz-dtb
+          find . -name "Image.gz-dtb" -exec cp {} $GITHUB_WORKSPACE/artifacts/ \;
+          
+          # Copy modules if built
+          find . -name "*.ko" -exec cp {} $GITHUB_WORKSPACE/artifacts/ \;
+          
+          # Create build info
+          echo "Build Date: $(date)" > $GITHUB_WORKSPACE/artifacts/BUILD_INFO.txt
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_WORKSPACE/artifacts/BUILD_INFO.txt
+          echo "Kernel Commit: $(git -C kernel/samsung/exynos990 rev-parse HEAD)" >> $GITHUB_WORKSPACE/artifacts/BUILD_INFO.txt
+      
+      - name: Upload kernel artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-image
-          path: kernel/samsung/exynos990/arch/arm64/boot/Image.gz-dtb
+          name: ElementOS-kernel-r8s-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+      
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_number }}
+          path: |
+            ${{ env.KERNEL_DIR }}/.config
+            ${{ env.KERNEL_DIR }}/arch/arm64/boot/
+            /tmp/build.log
+          retention-days: 7
